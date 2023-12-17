@@ -30,9 +30,9 @@
        state: present
        update_cache: yes
    - name: "Install Python packages"
-     pip: "name={{ item }}  state=present"
-     with_items:
-        - psycopg2-binary
+     pip: 
+       name: psycopg2-binary
+       state: present
 #   - name: Set authorized key taken from file
 #     ansible.posix.authorized_key:
 #       user: ronny
