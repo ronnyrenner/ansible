@@ -98,7 +98,7 @@
      when: not netbox_conf.stat.exists
 
    - name: execute install script
-     script: /opt/netbox/upgrade.sh
+     command: sh /opt/netbox/upgrade.sh
 
 #   - name: Download netbox
 #     ansible.builtin.get_url:
