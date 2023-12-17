@@ -96,10 +96,6 @@
        group: netbox
        recurse: true
      when: not netbox_conf.stat.exists
-
-   - name: execute install script
-     command: sh /opt/netbox/upgrade.sh
-
 #   - name: Download netbox
 #     ansible.builtin.get_url:
 #       url: https://github.com/netbox-community/netbox/archive/refs/tags/v3.6.7.tar.gz
