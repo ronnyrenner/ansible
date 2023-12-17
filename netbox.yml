@@ -1,0 +1,104 @@
+- name: Install Netbox Server
+  hosts: netbox
+  become: yes
+  vars_files:
+    - vars.yml
+  pre_tasks:
+   - name: Set timezone to Europe/Zurich
+     community.general.timezone:
+       name: Europe/Zurich
+   - name: Install apt packages
+     ansible.builtin.apt:
+       name:
+       - qemu-guest-agent
+       - nginx
+       - nano
+       - plocate
+       - postgresql
+       - redis-server
+       - python3
+       - python3-pip
+       - python3-venv
+       - python3-dev
+       - build-essential
+       - libxml2-dev
+       - libxslt1-dev
+       - libffi-dev
+       - libpq-dev
+       - libssl-dev
+       - zlib1g-dev
+       state: present
+       update_cache: yes
+   - name: "Install Python packages"
+     pip: "name={{ item }}  state=present"
+     with_items:
+        - psycopg2-binary
+#   - name: Set authorized key taken from file
+#     ansible.posix.authorized_key:
+#       user: ronny
+#       state: present
+#       key: "{{ lookup('file', '/home/ronny/.ssh/id_rsa.pub') }}"
+  tasks:
+   - name: Check for netbox folder in /opt/netbox
+     stat:
+       path: /opt/netbox/netbox/netbox/configuration.py
+     register: netbox_conf
+   - name: Create directory /tmp/netbox
+     ansible.builtin.file:
+       path: /tmp/netbox
+       state: directory
+     when: not netbox_conf.stat.exists
+   - name: Download and unzip file to /opt
+     ansible.builtin.unarchive:
+       src: https://github.com/netbox-community/netbox/archive/refs/tags/v3.6.7.tar.gz
+       dest: /opt
+       remote_src: yes
+     when: not netbox_conf.stat.exists
+   - name: Create symlink
+     file:
+       src: "/opt/netbox-3.6.7"
+       dest: "/opt/netbox"
+       state: link
+     when: not netbox_conf.stat.exists
+   - name: Ensure group "netbox" exists
+     ansible.builtin.group:
+       name: netbox
+       state: present
+   - name: Add the user 'netbox' and add to group 'netbox'
+     ansible.builtin.user:
+       name: netbox
+       system: true
+       group: netbox
+#       append: yes
+     when: not netbox_conf.stat.exists
+   - name: Chown netbox directories
+     file:
+       path: /opt/netbox/netbox/media/
+       owner: netbox
+       group: netbox
+       recurse: true
+     when: not netbox_conf.stat.exists
+   - name: Chown netbox directories
+     file:
+       path: /opt/netbox/netbox/reports/
+       owner: netbox
+       group: netbox
+       recurse: true
+     when: not netbox_conf.stat.exists
+   - name: Chown netbox directories
+     file:
+       path: /opt/netbox/netbox/scripts/
+       owner: netbox
+       group: netbox
+       recurse: true
+     when: not netbox_conf.stat.exists
+
+
+
+#   - name: Download netbox
+#     ansible.builtin.get_url:
+#       url: https://github.com/netbox-community/netbox/archive/refs/tags/v3.6.7.tar.gz
+#       dest: /tmp/netbox/netboxv3.6.7.tar.gz
+
+#   - name: download sources
+#     get_url: url={{ opencv.url }} dest={{ common.project_dir }}/{{ opencv.file }}
