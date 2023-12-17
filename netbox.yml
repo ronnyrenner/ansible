@@ -7,7 +7,11 @@
    - name: Set timezone to Europe/Zurich
      community.general.timezone:
        name: Europe/Zurich
-   - name: Install apt packages
+   - name: Update and Upgrade apt
+     ansible.builtin.apt:
+       update_cache: yes
+       upgrade: yes
+   - name: Install requirements
      ansible.builtin.apt:
        name:
        - qemu-guest-agent
@@ -28,7 +32,7 @@
        - libssl-dev
        - zlib1g-dev
        state: present
-       update_cache: yes
+#       update_cache: yes
    - name: "Install Python packages"
      pip: 
        name: psycopg2-binary
